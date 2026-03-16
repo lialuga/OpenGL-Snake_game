@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug OpenGL Project",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/OpenglProjekt",
+            "args": [],                    // Ide írhatod, ha a programnak vannak parancssori argumentumai
+            "cwd": "${workspaceFolder}",   // Aktuális könyvtár, ahonnan fut a program
+            "stopAtEntry": false,          // true, ha a program elején meg akarod állítani a debugot
+            "environment": [],             // Környezeti változók, ha kell
+            "externalConsole": false,      // true, ha külön konzolt akarsz megnyitni
+            "MIMode": "lldb"
+        }
+    ]
+}
