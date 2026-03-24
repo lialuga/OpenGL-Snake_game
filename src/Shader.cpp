@@ -47,7 +47,7 @@ unsigned int Shader::compileShader(const char* path, GLenum type) {
         file.close();
         code = ss.str();
     } catch (std::ifstream::failure&) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << path << std::endl;
+        std::cout << "Could not read shader file: " << path << std::endl;
     }
 
     const char* src = code.c_str();
@@ -66,13 +66,13 @@ void Shader::checkErrors(unsigned int object, const std::string& type) {
         glGetShaderiv(object, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(object, 1024, nullptr, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION::" << type << "\n" << infoLog << std::endl;
+            std::cout << type << " shader compilation failed:\n" << infoLog << std::endl;
         }
     } else {
         glGetProgramiv(object, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(object, 1024, nullptr, infoLog);
-            std::cout << "ERROR::PROGRAM_LINKING\n" << infoLog << std::endl;
+            std::cout << "Shader program linking failed:\n" << infoLog << std::endl;
         }
     }
 }

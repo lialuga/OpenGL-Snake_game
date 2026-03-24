@@ -87,7 +87,7 @@ void Game::update(float dt) {
 }
 
 void Game::tick() {
-    Segment oldTail = snake.step();
+    Segment tailSegment = snake.step();
     snake.wrapHead(GRID_W, GRID_H);
     Segment head = snake.getBody().front();
 
@@ -108,10 +108,10 @@ void Game::tick() {
         return;
     }
 
-    for (int i = 0; i < static_cast<int>(foods.size()); ++i) {
-        if (foods[i].x == head.x && foods[i].y == head.y) {
-            if (foods[i].type == FoodType::GOOD) {
-                snake.grow(oldTail);
+    for (int foodIndex = 0; foodIndex < static_cast<int>(foods.size()); ++foodIndex) {
+        if (foods[foodIndex].x == head.x && foods[foodIndex].y == head.y) {
+            if (foods[foodIndex].type == FoodType::GOOD) {
+                snake.grow(tailSegment);
                 score++;
                 std::cout << "Good food! Score: " << score << "\n";
             } else {
@@ -123,7 +123,7 @@ void Game::tick() {
                 }
             }
 
-            foods.erase(foods.begin() + i);
+            foods.erase(foods.begin() + foodIndex);
             spawnFood();
             break;
         }
@@ -134,11 +134,11 @@ void Game::spawnFood() {
     bool hasGood = false;
     bool hasBad = false;
 
-    for (const auto& f : foods) {
-        if (f.type == FoodType::GOOD) {
+    for (const auto& food : foods) {
+        if (food.type == FoodType::GOOD) {
             hasGood = true;
         }
-        if (f.type == FoodType::BAD) {
+        if (food.type == FoodType::BAD) {
             hasBad = true;
         }
     }
@@ -155,28 +155,28 @@ Food Game::randomFood(FoodType type) {
     std::uniform_int_distribution<int> distX(0, GRID_W - 1);
     std::uniform_int_distribution<int> distY(0, GRID_H - 1);
 
-    Food f;
-    f.type = type;
+    Food food;
+    food.type = type;
 
     int attempts = 0;
     do {
-        f.x = distX(rng);
-        f.y = distY(rng);
+        food.x = distX(rng);
+        food.y = distY(rng);
         attempts++;
-    } while (!isCellFree(f.x, f.y) && attempts < 500);
+    } while (!isCellFree(food.x, food.y) && attempts < 500);
 
-    return f;
+    return food;
 }
 
 bool Game::isCellFree(int x, int y) const {
-    for (const auto& s : snake.getBody()) {
-        if (s.x == x && s.y == y) {
+    for (const auto& segment : snake.getBody()) {
+        if (segment.x == x && segment.y == y) {
             return false;
         }
     }
 
-    for (const auto& f : foods) {
-        if (f.x == x && f.y == y) {
+    for (const auto& food : foods) {
+        if (food.x == x && food.y == y) {
             return false;
         }
     }

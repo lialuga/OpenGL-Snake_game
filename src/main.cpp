@@ -9,45 +9,45 @@
 constexpr int WIN_W = 600;
 constexpr int WIN_H = 600;
 
-static Game* g_game = nullptr;
-static int g_winW = WIN_W;
-static int g_winH = WIN_H;
+static Game* activeGame = nullptr;
+static int windowWidth = WIN_W;
+static int windowHeight = WIN_H;
 
 static glm::vec2 toNDC(double xpos, double ypos) {
-    float x = static_cast<float>(xpos / g_winW) * 2.0f - 1.0f;
-    float y = -(static_cast<float>(ypos / g_winH) * 2.0f - 1.0f);
+    float x = static_cast<float>(xpos / windowWidth) * 2.0f - 1.0f;
+    float y = -(static_cast<float>(ypos / windowHeight) * 2.0f - 1.0f);
     return {x, y};
 }
 
-void framebuffer_size_callback(GLFWwindow* /*window*/, int width, int height) {
+void framebuffer_size_callback(GLFWwindow*, int width, int height) {
 	glViewport(0, 0, width, height);
-	g_winW = width;
-	g_winH = height;
+	windowWidth = width;
+	windowHeight = height;
 }
 
-void key_callback(GLFWwindow* window, int key, int /*scancode*/, int action, int /*mods*/) {
+void key_callback(GLFWwindow* window, int key, int, int action, int) {
 	if (action != GLFW_PRESS) return;
 
 	if (key == GLFW_KEY_ESCAPE) {
 		glfwSetWindowShouldClose(window, true);
 	}
 
-	if (g_game) {
-		g_game->handleKey(key);
+	if (activeGame) {
+		activeGame->handleKey(key);
 	}
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int /*mods*/) {
-	if (!g_game) return;
+void mouse_button_callback(GLFWwindow* window, int button, int action, int) {
+	if (!activeGame) return;
 	double xpos = 0.0;
 	double ypos = 0.0;
 	glfwGetCursorPos(window, &xpos, &ypos);
-	g_game->handleMouseButton(button, action, toNDC(xpos, ypos));
+	activeGame->handleMouseButton(button, action, toNDC(xpos, ypos));
 }
 
-void cursor_pos_callback(GLFWwindow* /*window*/, double xpos, double ypos) {
-	if (!g_game) return;
-	g_game->handleMouseMove(toNDC(xpos, ypos));
+void cursor_pos_callback(GLFWwindow*, double xpos, double ypos) {
+	if (!activeGame) return;
+	activeGame->handleMouseMove(toNDC(xpos, ypos));
 }
 
 int main() {
@@ -77,7 +77,7 @@ int main() {
 
 	Game game;
 	Renderer renderer;
-	g_game = &game;
+	activeGame = &game;
 
 	float lastTime = static_cast<float>(glfwGetTime());
 

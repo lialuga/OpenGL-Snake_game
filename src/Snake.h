@@ -17,7 +17,7 @@ public:
     Direction getDirection() const { return direction; }
 
     Segment step();
-    void grow(Segment oldTail);
+    void grow(Segment tailSegment);
     void wrapHead(int width, int height);
 
     int length() const { return static_cast<int>(body.size()); }

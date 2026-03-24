@@ -40,10 +40,10 @@ Wall::~Wall() {
     glDeleteBuffers(1, &VBO);
 }
 
-void Wall::addPoint(glm::vec2 p) {
+void Wall::addPoint(glm::vec2 point) {
     if (phase != WallPhase::EDITING) return;
 
-    controlPoints.push_back(p);
+    controlPoints.push_back(point);
     subdivisionLevel = 0;
     points = controlPoints;
     uploadToGPU();
@@ -69,26 +69,26 @@ void Wall::endDrag() {
     dragIndex = -1;
 }
 
-std::vector<glm::vec2> Wall::catmullClarkStep(const std::vector<glm::vec2>& pts) {
-    const int n = static_cast<int>(pts.size());
-    if (n < 2) return pts;
+std::vector<glm::vec2> Wall::catmullClarkStep(const std::vector<glm::vec2>& inputPoints) {
+    const int pointCount = static_cast<int>(inputPoints.size());
+    if (pointCount < 2) return inputPoints;
 
     std::vector<glm::vec2> result;
-    result.reserve(2 * n - 1);
+    result.reserve(2 * pointCount - 1);
 
-    for (int i = 0; i < n; ++i) {
-        if (i == 0 || i == n - 1) {
-            result.push_back(pts[i]);
+    for (int pointIndex = 0; pointIndex < pointCount; ++pointIndex) {
+        if (pointIndex == 0 || pointIndex == pointCount - 1) {
+            result.push_back(inputPoints[pointIndex]);
         } else {
-            glm::vec2 newPt = (1.0f / 8.0f) * pts[i - 1]
-                            + (6.0f / 8.0f) * pts[i]
-                            + (1.0f / 8.0f) * pts[i + 1];
-            result.push_back(newPt);
+            glm::vec2 smoothedPoint = (1.0f / 8.0f) * inputPoints[pointIndex - 1]
+                                    + (6.0f / 8.0f) * inputPoints[pointIndex]
+                                    + (1.0f / 8.0f) * inputPoints[pointIndex + 1];
+            result.push_back(smoothedPoint);
         }
 
-        if (i < n - 1) {
-            glm::vec2 edgeMid = 0.5f * pts[i] + 0.5f * pts[i + 1];
-            result.push_back(edgeMid);
+        if (pointIndex < pointCount - 1) {
+            glm::vec2 edgeMidpoint = 0.5f * inputPoints[pointIndex] + 0.5f * inputPoints[pointIndex + 1];
+            result.push_back(edgeMidpoint);
         }
     }
 
@@ -169,21 +169,21 @@ void Wall::draw() const {
 bool Wall::collides(glm::vec2 point, float threshold) const {
     if (points.size() < 2) return false;
 
-    for (int i = 0; i < static_cast<int>(points.size()) - 1; ++i) {
-        glm::vec2 a = points[i];
-        glm::vec2 b = points[i + 1];
-        glm::vec2 ab = b - a;
-        glm::vec2 ap = point - a;
+    for (int segmentIndex = 0; segmentIndex < static_cast<int>(points.size()) - 1; ++segmentIndex) {
+        glm::vec2 segmentStart = points[segmentIndex];
+        glm::vec2 segmentEnd = points[segmentIndex + 1];
+        glm::vec2 segmentVector = segmentEnd - segmentStart;
+        glm::vec2 pointOffset = point - segmentStart;
 
-        float len2 = glm::dot(ab, ab);
-        if (len2 < 1e-10f) continue;
+        float segmentLengthSquared = glm::dot(segmentVector, segmentVector);
+        if (segmentLengthSquared < 1e-10f) continue;
 
-        float t = glm::dot(ap, ab) / len2;
-        t = std::max(0.0f, std::min(1.0f, t));
+        float projection = glm::dot(pointOffset, segmentVector) / segmentLengthSquared;
+        projection = std::max(0.0f, std::min(1.0f, projection));
 
-        glm::vec2 closest = a + t * ab;
-        float dist = glm::length(point - closest);
-        if (dist < threshold) {
+        glm::vec2 closestPoint = segmentStart + projection * segmentVector;
+        float distance = glm::length(point - closestPoint);
+        if (distance < threshold) {
             return true;
         }
     }
@@ -201,15 +201,15 @@ void Wall::uploadToGPU() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-int Wall::nearestControlPoint(glm::vec2 p, float maxDist) const {
+int Wall::nearestControlPoint(glm::vec2 point, float maxDist) const {
     int best = -1;
     float bestDist = maxDist;
 
-    for (int i = 0; i < static_cast<int>(controlPoints.size()); ++i) {
-        float d = glm::length(controlPoints[i] - p);
-        if (d < bestDist) {
-            bestDist = d;
-            best = i;
+    for (int pointIndex = 0; pointIndex < static_cast<int>(controlPoints.size()); ++pointIndex) {
+        float distance = glm::length(controlPoints[pointIndex] - point);
+        if (distance < bestDist) {
+            bestDist = distance;
+            best = pointIndex;
         }
     }
 

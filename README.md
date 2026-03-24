@@ -1,35 +1,29 @@
-# OpenGL Snake Game (macOS, GLFW)
+# Snake (OpenGL + GLFW)
 
-Snake jatek OpenGL + GLFW alapon, kiegeszitve fal-szerkeszto moddal es Catmull-Clark jellegu simitassal.
+Ez egy egyszeru Snake jatek C++-ban, OpenGL-lel kirajzolva. A klasszikus jatekhoz kepest van benne egy kulon fal-szerkeszto szakasz is: inditas elott fel lehet rajzolni a falat pontokbol, es lehet rajta simitani is.
 
-## Fobb funkciok
+## Mit tud a jatek
 
-- Wrap-around mozgas a palya szelen.
-- Jo/rossz etel mechanika.
-- 3 eletes jateklogika.
-- Szerkesztheto fal az inditas elott:
-  - pontok lerakasa,
-  - pontok huzasa,
-  - simitas (J), visszavonas (N),
-  - Enterrel jatek inditas.
-- Fal-utkozes detektalas a kigyo fejenel (NDC pont-szakasz tavolsag).
+- A kigyo atfordul a palya szelein.
+- Van jo es rossz etel.
+- A jatekos 3 elettel indul.
+- A falat inditas elott lehet szerkeszteni egermutatos vezerlessel.
+- Falnak utkozes vagy onutkozes eseten jatek vege.
 
-## Konyvtarak
+## Fuggosegek
 
-- OpenGL (rendszer)
+- OpenGL
 - GLFW
 - GLM
 - CMake
 
-Homebrew telepites (ha hianyzik):
+Ha valami hianyzik macOS-en:
 
 ```bash
 brew install glfw glm cmake
 ```
 
 ## Build es futtatas
-
-A projekt gyokerbol:
 
 ```bash
 cmake -S . -B build
@@ -39,42 +33,32 @@ cmake --build build -j
 
 ## Vezerles
 
-### Szerkesztesi fazis (WallPhase::EDITING)
+Szerkesztesi fazis:
+- Bal klikk: uj pont
+- Jobb klikk + huzas: pont mozgatasa
+- J: simitas novelese
+- N: simitas visszavetele
+- Enter: fal rogzitese, jatek inditasa
 
-- Bal klikk: uj kontrol pont hozzaadasa
-- Jobb klikk + huzas: legkozelebbi pont mozgatasa
-- J: egy szint Catmull-Clark jellegu simitas
-- N: simitas visszavonasa egy szinttel
-- Enter: fal fixalasa, atlepes jatek fazisba
-
-### Jatek fazis (WallPhase::PLAYING)
-
+Jatek fazis:
 - Nyil gombok: mozgas
+- R: uj jatek (game over utan)
 - ESC: kilepes
-- R: ujrainditas (game over utan)
 
-## Catmull-Clark jellegu simitas (2D gorbere)
+## Simitas roviden
 
-Egy simitasi lepesben:
+A fal pontjain egy Catmull-Clark jellegu 2D simitas fut. Egy lepes utan tobb kozbenso pont keletkezik, emiatt a gorbe folyamatosabbnak tunik.
 
-- Belsso pontok:
-  - P'i = (1/8) * P(i-1) + (6/8) * Pi + (1/8) * P(i+1)
-- El-kozeppontok:
-  - E(i,i+1) = 0.5 * Pi + 0.5 * P(i+1)
-- Vegpontok fixen maradnak
+## Forraskod szerkezet
 
-Igy N pontbol egy lepes utan 2N - 1 pont lesz.
-
-## Projekt felépites
-
-- `src/main.cpp`: ablak, callbackek, fo ciklus
-- `src/Game.h/.cpp`: jatekallapot, faziskezeles, etel/snake logika
-- `src/Snake.h/.cpp`: kigyo mozgas, novekedes, onutkozes
-- `src/Wall.h/.cpp`: fal szerkesztes, simitas, rajz, utkozes
-- `src/Renderer.h/.cpp`: kirajzolas, effektek, HUD-szeru vizualis allapotok
-- `src/Shader.h/.cpp`: shader betoltes/kezeles
-- `src/shaders/*`: GLSL shader fajlok
+- src/main.cpp: GLFW inicializalas, callbackek, fo ciklus
+- src/Game.h/.cpp: jatekallapot, fazisok, etelkezeles
+- src/Snake.h/.cpp: kigyo mozgas es novekedes
+- src/Wall.h/.cpp: fal szerkesztes, simitas, utkozes
+- src/Renderer.h/.cpp: kirajzolas
+- src/Shader.h/.cpp: shader betoltes es uniform kezeles
+- src/shaders/: GLSL shaderek
 
 ## Megjegyzes
 
-macOS alatt az OpenGL API deprecated warningokat adhat forditaskor; ez varhato es nem feltetlenul hiba.
+macOS alatt az OpenGL deprecated warningok varhatoak. Ettol a program meg normalisan futhat.

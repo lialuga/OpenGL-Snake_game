@@ -17,7 +17,7 @@ public:
     Wall();
     ~Wall();
 
-    void addPoint(glm::vec2 p);
+    void addPoint(glm::vec2 point);
     void startDrag(glm::vec2 mouseNDC);
     void updateDrag(glm::vec2 mouseNDC);
     void endDrag();
@@ -50,7 +50,7 @@ private:
 
     void uploadToGPU() const;
 
-    static std::vector<glm::vec2> catmullClarkStep(const std::vector<glm::vec2>& pts);
+    static std::vector<glm::vec2> catmullClarkStep(const std::vector<glm::vec2>& inputPoints);
 
-    int nearestControlPoint(glm::vec2 p, float maxDist = 0.08f) const;
+    int nearestControlPoint(glm::vec2 point, float maxDist = 0.08f) const;
 };

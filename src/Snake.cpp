@@ -26,14 +26,14 @@ Segment Snake::step() {
         case Direction::RIGHT: head.x += 1; break;
     }
 
-    Segment oldTail = body.back();
+    Segment tailSegment = body.back();
     body.pop_back();
     body.push_front(head);
-    return oldTail;
+    return tailSegment;
 }
 
-void Snake::grow(Segment oldTail) {
-    body.push_back(oldTail);
+void Snake::grow(Segment tailSegment) {
+    body.push_back(tailSegment);
 }
 
 void Snake::wrapHead(int width, int height) {

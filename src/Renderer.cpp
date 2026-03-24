@@ -64,16 +64,16 @@ void Renderer::draw(const Game& game, float time) {
     }
 
     const auto& body = game.getSnake().getBody();
-    for (int i = 0; i < static_cast<int>(body.size()); ++i) {
-        float nx = static_cast<float>(body[i].x) / static_cast<float>(GRID_W - 1);
-        float ny = static_cast<float>(body[i].y) / static_cast<float>(GRID_H - 1);
+    for (int segmentIndex = 0; segmentIndex < static_cast<int>(body.size()); ++segmentIndex) {
+        float normalizedX = static_cast<float>(body[segmentIndex].x) / static_cast<float>(GRID_W - 1);
+        float normalizedY = static_cast<float>(body[segmentIndex].y) / static_cast<float>(GRID_H - 1);
 
-        float r = 0.1f + 0.7f * nx;
-        float g = (i == 0) ? 0.95f : 0.75f;
-        float b = 0.1f + 0.6f * ny;
+        float red = 0.1f + 0.7f * normalizedX;
+        float green = (segmentIndex == 0) ? 0.95f : 0.75f;
+        float blue = 0.1f + 0.6f * normalizedY;
 
-        float pad = (i == 0) ? 0.02f : 0.05f;
-        drawTile(body[i].x, body[i].y, glm::vec4(r, g, b, 1.0f), pad);
+        float padding = (segmentIndex == 0) ? 0.02f : 0.05f;
+        drawTile(body[segmentIndex].x, body[segmentIndex].y, glm::vec4(red, green, blue, 1.0f), padding);
     }
 
     if (game.getState() == GameState::GAME_OVER) {
